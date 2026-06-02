@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1b14">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>"><title>Dardos · La Diana de Pako</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Oswald:wght@300;400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1b14;
+    --felt:#152a1f;
+    --felt2:#1c3527;
+    --line:#2c4a38;
+    --cream:#f4ecd8;
+    --cream-dim:#b8b099;
+    --red:#c0392b;
+    --red-glow:#e74c3c;
+    --green:#2e9e63;
+    --gold:#d4a64a;
+    --ink:#0a130d;
+    --shadow:rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Oswald',sans-serif;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(46,158,99,.10), transparent 55%),
+      radial-gradient(circle at 85% 110%, rgba(192,57,43,.10), transparent 50%),
+      var(--bg);
+    color:var(--cream);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* faint dartboard backdrop */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;opacity:.045;pointer-events:none;
+    background-image:
+      repeating-conic-gradient(from 0deg at 50% 38%, var(--cream) 0deg 9deg, transparent 9deg 18deg);
+    mask:radial-gradient(circle at 50% 38%, #000 0, #000 42vmin, transparent 43vmin);
+    -webkit-mask:radial-gradient(circle at 50% 38%, #000 0, #000 42vmin, transparent 43vmin);
+  }
+  .wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:18px 16px 40px;min-height:100vh;display:flex;flex-direction:column}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .logo-dart{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 2px 4px var(--shadow))}
+  .title h1{font-family:'Anton',sans-serif;font-size:26px;letter-spacing:.5px;line-height:.95;text-transform:uppercase}
+  .title h1 span{color:var(--red-glow)}
+  .title p{font-family:'Caveat',cursive;font-size:18px;color:var(--gold);margin-top:-2px}
+  .who{margin-left:auto;text-align:right;font-size:12px;color:var(--cream-dim);line-height:1.3}
+  .who b{display:block;color:var(--cream);font-weight:600;font-size:13px}
+  .who a{color:var(--gold);font-size:11px;text-decoration:none;border-bottom:1px dotted}
+
+  /* ---------- cards / buttons ---------- */
+  .card{background:linear-gradient(180deg,var(--felt2),var(--felt));border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 24px var(--shadow);margin-bottom:14px}
+  .card h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .btn{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;border:none;border-radius:12px;padding:14px 18px;cursor:pointer;color:var(--cream);background:var(--line);transition:transform .08s,filter .15s;width:100%;text-transform:uppercase}
+  .btn:active{transform:scale(.97)}
+  .btn-red{background:linear-gradient(180deg,var(--red-glow),var(--red));color:#fff;box-shadow:0 4px 0 #7c241a}
+  .btn-red:active{box-shadow:0 1px 0 #7c241a;transform:translateY(3px)}
+  .btn-green{background:linear-gradient(180deg,var(--green),#1f6e44);color:#fff;box-shadow:0 4px 0 #134529}
+  .btn-green:active{box-shadow:0 1px 0 #134529;transform:translateY(3px)}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--cream-dim);font-size:16px;letter-spacing:1px}
+  .row{display:flex;gap:10px}
+  .hidden{display:none!important}
+
+  /* ---------- login ---------- */
+  #loginScreen{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:18px}
+  #loginScreen .big-dart{font-size:64px;filter:drop-shadow(0 4px 10px var(--shadow))}
+  #loginScreen h2{font-family:'Anton',sans-serif;font-size:32px;text-transform:uppercase;letter-spacing:1px}
+  #loginScreen p{color:var(--cream-dim);max-width:300px;font-size:15px}
+  .gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#222;border:none;border-radius:12px;padding:13px 22px;font-family:'Oswald';font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 4px 14px var(--shadow)}
+
+  /* ---------- player select ---------- */
+  .players-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .pchip{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:var(--felt);border:2px solid var(--line);cursor:pointer;transition:border-color .15s,background .15s}
+  .pchip.sel{border-color:var(--gold);background:rgba(212,166,74,.10)}
+  .pchip .avatar{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:18px;color:#fff;position:relative;border:2px solid rgba(255,255,255,.25)}
+  .pchip .pname{font-weight:600;font-size:16px}
+  .pchip .check{margin-left:auto;font-size:18px;color:var(--gold);opacity:0}
+  .pchip.sel .check{opacity:1}
+
+  .seg{display:flex;gap:8px;margin:6px 0 14px}
+  .seg button{flex:1;font-family:'Bebas Neue';font-size:22px;letter-spacing:1px;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--felt);color:var(--cream-dim);cursor:pointer}
+  .seg button.on{border-color:var(--red-glow);background:rgba(231,76,60,.12);color:var(--cream)}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-top:1px solid var(--line)}
+  .toggle-row .lbl{font-size:15px}
+  .toggle-row .sub{font-size:12px;color:var(--cream-dim)}
+  .switch{position:relative;width:52px;height:30px;flex:0 0 auto}
+  .switch input{display:none}
+  .slider{position:absolute;inset:0;background:var(--line);border-radius:30px;transition:.2s;cursor:pointer}
+  .slider::before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:var(--cream);border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--green)}
+  .switch input:checked + .slider::before{transform:translateX(22px)}
+
+  /* ---------- game ---------- */
+  #gameScreen .scoreboard{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .pscore{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--felt);border:1px solid var(--line);transition:border-color .2s,box-shadow .2s,background .2s}
+  .pscore.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,166,74,.35),0 6px 18px var(--shadow);background:var(--felt2)}
+  .pscore .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:18px;color:#fff;border:2px solid rgba(255,255,255,.25)}
+  .pscore .info{flex:1;min-width:0}
+  .pscore .nm{font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px}
+  .pscore .turnpts{font-size:12px;color:var(--cream-dim)}
+  .pscore .pts{font-family:'Anton';font-size:38px;line-height:1;color:var(--cream)}
+  .pscore.active .pts{color:var(--gold)}
+  .pscore .arrow{color:var(--gold);font-size:18px}
+
+  .checkout{background:linear-gradient(180deg,rgba(46,158,99,.16),rgba(46,158,99,.04));border:1px solid var(--green);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center}
+  .checkout .ttl{font-family:'Bebas Neue';font-size:18px;letter-spacing:1px;color:var(--green);margin-bottom:8px}
+  .checkout .ttl b{color:var(--cream)}
+  .routes{display:flex;flex-direction:column;gap:8px}
+  .route{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-family:'Bebas Neue';font-size:22px;letter-spacing:1px}
+  .hit{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px 12px;color:var(--cream)}
+  .hit.dbl{border-color:var(--red-glow);color:var(--red-glow)}
+  .hit.bull{border-color:var(--green);color:var(--green)}
+  .arrow-s{color:var(--cream-dim);font-size:16px}
+  .nocheck{color:var(--gold);font-family:'Caveat';font-size:20px}
+
+  /* keypad / input */
+  .entry{background:var(--felt2);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .entry .display{font-family:'Anton';font-size:46px;text-align:center;color:var(--cream);min-height:54px;letter-spacing:2px}
+  .entry .display .ph{color:var(--cream-dim);opacity:.4}
+  .entry .turnfor{text-align:center;font-size:13px;color:var(--cream-dim);margin-bottom:6px}
+  .entry .turnfor b{color:var(--gold)}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .key{font-family:'Bebas Neue';font-size:28px;padding:14px 0;border-radius:10px;border:1px solid var(--line);background:var(--felt);color:var(--cream);cursor:pointer}
+  .key:active{background:var(--line)}
+  .key.wide{grid-column:span 1}
+  .key-del{color:var(--red-glow)}
+  .entry-actions{display:flex;gap:8px;margin-top:10px}
+  .entry-actions .btn{flex:1}
+  .quick{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+  .quick button{font-family:'Bebas Neue';font-size:16px;letter-spacing:.5px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--felt);color:var(--cream-dim);cursor:pointer}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--red);color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;font-size:15px;box-shadow:0 6px 20px var(--shadow);opacity:0;transition:.25s;z-index:50;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.good{background:var(--green)}
+
+  /* winner */
+  #winScreen{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px}
+  #winScreen .crown{font-size:60px}
+  #winScreen h2{font-family:'Anton';font-size:30px;text-transform:uppercase}
+  #winScreen .wname{color:var(--gold)}
+  #winScreen .stat{color:var(--cream-dim);font-size:15px}
+
+  /* history & stats */
+  .stat-table{width:100%;border-collapse:collapse;font-size:14px}
+  .stat-table th{font-family:'Bebas Neue';letter-spacing:1px;color:var(--cream-dim);text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);font-weight:400}
+  .stat-table th:first-child{text-align:left}
+  .stat-table td{padding:9px 6px;text-align:right;border-bottom:1px solid rgba(44,74,56,.4)}
+  .stat-table td:first-child{text-align:left;display:flex;align-items:center;gap:8px}
+  .stat-table .miniav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:12px;color:#fff;flex:0 0 auto}
+  .hist-item{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid rgba(44,74,56,.4);font-size:14px}
+  .hist-item .mode-tag{font-family:'Bebas Neue';background:var(--line);padding:2px 8px;border-radius:6px;font-size:13px}
+  .hist-item .win{color:var(--gold);font-weight:600}
+  .hist-item .hi-main{flex:1;min-width:0}
+  .hist-item .date{color:var(--cream-dim);font-size:12px}
+  .hist-item .hi-del{background:transparent;border:none;cursor:pointer;font-size:16px;padding:2px 4px;opacity:.7}
+  .hist-item .hi-del:active{opacity:1}
+  .empty{text-align:center;color:var(--cream-dim);font-family:'Caveat';font-size:20px;padding:20px}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tabs button{flex:1;font-family:'Bebas Neue';font-size:18px;letter-spacing:1px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--felt);color:var(--cream-dim);cursor:pointer}
+  .tabs button.on{background:var(--line);color:var(--cream)}
+  .legend{font-size:11px;color:var(--cream-dim);text-align:center;margin-top:8px}
+  .legend b{color:var(--cream)}
+
+  /* ---------- diana ---------- */
+  .board-wrap{display:flex;justify-content:center;margin-bottom:14px}
+  #board{width:100%;max-width:360px}
+  #board svg{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 20px rgba(0,0,0,.5))}
+  .seg{cursor:pointer;stroke:#0d1b14;stroke-width:1;transition:filter .08s}
+  .seg:active{filter:brightness(1.55)}
+  .bnum{fill:#f4ecd8;font-family:'Bebas Neue',sans-serif;font-size:15px;pointer-events:none}
+  .turnpanel{background:linear-gradient(180deg,var(--felt2),var(--felt));border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 6px 18px var(--shadow)}
+  .active-card{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .active-card .avatar{width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;display:flex;align-items:center;justify-content:center;font-family:'Anton';color:#fff;font-size:20px}
+  .ac-info{flex:1;min-width:0}
+  .ac-name{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:var(--gold)}
+  .ac-sub{font-size:12px;color:var(--cream-dim)}
+  .ac-score{font-family:'Anton';font-size:54px;line-height:.9;color:var(--cream)}
+  .darts-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+  .slot{flex:1;height:48px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:23px;color:var(--cream-dim);background:var(--felt)}
+  .slot.filled{border-style:solid;border-color:var(--gold);color:var(--cream)}
+  .slot-sum{width:66px;height:48px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:24px;color:var(--gold)}
+  .checkout-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;min-height:30px;font-family:'Bebas Neue';font-size:18px;letter-spacing:.5px}
+  .co-lbl{color:var(--green);background:rgba(46,158,99,.12);border:1px solid var(--green);border-radius:8px;padding:3px 10px}
+  .co-route{color:var(--cream)}
+  .co-or{color:var(--cream-dim);font-size:14px}
+  .game-actions{display:flex;gap:8px}
+  .game-actions .btn{flex:1;font-size:16px;letter-spacing:1px;padding:11px}
+  .others{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  .opl{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--felt);border:1px solid var(--line)}
+  .avatar-sm{width:30px;height:30px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-family:'Anton';color:#fff;font-size:14px}
+  .opl{align-items:center}
+  .opl-info{flex:1;min-width:0}
+  .opl-name{font-weight:600;font-size:15px}
+  .opl-last{font-size:13px;color:var(--cream-dim);font-family:'Bebas Neue',sans-serif;letter-spacing:.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .opl-last b{color:var(--cream);font-weight:400}
+  .opl-last i{color:var(--cream-dim);font-style:normal;margin:0 4px}
+  .opl-eq{color:var(--gold)}
+  .opl-bust{color:var(--red-glow)}
+  .opl-none{font-style:italic;opacity:.7}
+  .opl-score{font-family:'Anton';font-size:24px;color:var(--cream)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg class="logo-dart" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="30" fill="#152a1f" stroke="#2c4a38" stroke-width="2"/>
+      <circle cx="32" cy="32" r="22" fill="none" stroke="#c0392b" stroke-width="6" stroke-dasharray="2 4"/>
+      <circle cx="32" cy="32" r="13" fill="none" stroke="#2e9e63" stroke-width="5"/>
+      <circle cx="32" cy="32" r="5" fill="#c0392b"/>
+      <circle cx="32" cy="32" r="2" fill="#d4a64a"/>
+    </svg>
+    <div class="title">
+      <h1>LA <span>DIANA</span></h1>
+      <p>de Pako</p>
+    </div>
+    <div class="who" id="whoBox"></div>
+  </header>
+
+  <!-- LOGIN -->
+  <section id="loginScreen">
+    <div class="big-dart">🎯</div>
+    <h2>La Diana de Pako</h2>
+    <p>301 · 501 · marcador de la peña. Inicia sesión para llevar el histórico.</p>
+    <button class="gbtn" id="googleBtn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.7 30.1 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.2 13.7 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7C43.7 38 46.5 31.8 46.5 24.5z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.7 2.3-6.4 0-11.8-4.2-13.6-10l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+      Entrar con Google
+    </button>
+    <div class="legend" id="loginErr"></div>
+  </section>
+
+  <!-- NEW GAME -->
+  <section id="newGameScreen" class="hidden">
+    <div class="card">
+      <h2>🎯 Nueva partida</h2>
+      <div style="font-size:14px;color:var(--cream-dim);margin-bottom:10px">¿Quién juega? (mín. 2)</div>
+      <div class="players-grid" id="playersGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Modo</h2>
+      <div class="seg" id="modeSeg">
+        <button data-mode="301" class="on">301</button>
+        <button data-mode="501">501</button>
+      </div>
+      <div class="sub" style="margin-top:10px;color:var(--cream-dim)">Se cierra con <b style="color:var(--cream)">doble o triple</b>. Con simple no se termina.</div>
+    </div>
+
+    <button class="btn btn-red" id="startBtn">Empezar partida</button>
+    <button class="btn btn-ghost" id="goHistoryBtn" style="margin-top:10px">Ver histórico y stats</button>
+  </section>
+
+  <!-- GAME -->
+  <section id="gameScreen" class="hidden">
+    <div class="board-wrap"><div id="board"></div></div>
+    <div class="turnpanel">
+      <div class="active-card" id="activeCard"></div>
+      <div class="darts-row" id="dartsRow"></div>
+      <div class="checkout-line" id="checkoutLine"></div>
+      <div class="game-actions">
+        <button class="btn btn-ghost" id="missBtn">Fallo (0)</button>
+        <button class="btn btn-ghost" id="undoBtn">↶ Dardo</button>
+        <button class="btn btn-green" id="passBtn">Siguiente ▸</button>
+      </div>
+    </div>
+    <div class="others" id="others"></div>
+    <button class="btn btn-ghost" id="quitBtn" style="margin-top:4px">Abandonar partida</button>
+  </section>
+
+  <!-- WINNER -->
+  <section id="winScreen" class="hidden">
+    <div class="crown">👑</div>
+    <h2>¡Ganó <span class="wname" id="winName">—</span>!</h2>
+    <div class="stat" id="winStat"></div>
+    <button class="btn btn-red" id="rematchBtn" style="max-width:280px">Revancha (mismos)</button>
+    <button class="btn btn-ghost" id="newFromWinBtn" style="max-width:280px;margin-top:10px">Nueva partida</button>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="historyScreen" class="hidden">
+    <div class="tabs">
+      <button id="tabStats" class="on">Clasificación</button>
+      <button id="tabHist">Partidas</button>
+    </div>
+    <div class="card" id="statsCard">
+      <table class="stat-table">
+        <thead><tr><th>Jugador</th><th>PJ</th><th>PG</th><th>Mejor cierre</th><th>Media 3d</th></tr></thead>
+        <tbody id="statsBody"></tbody>
+      </table>
+    </div>
+    <div class="card hidden" id="histCard"><div id="histList"></div></div>
+    <button class="btn btn-ghost" id="backFromHistory">Volver</button>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* =========================================================================
+   ⚠️  PASO ÚNICO QUE TIENES QUE HACER, XOSE:
+   Pega aquí EL MISMO firebaseConfig que tienes en la app de Azul.
+   Es el bloque firebase.initializeApp({...}) — cópialo tal cual.
+   Usamos tu mismo proyecto, pero TODO cuelga del nodo /dardos,
+   así que NO se toca nada de "azul-paletilla".
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyByuQTGzRG40fagc-6Ce55k8aGczTIDQF8",
+  authDomain: "azul-paletilla.firebaseapp.com",
+  databaseURL: "https://azul-paletilla-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "azul-paletilla",
+  storageBucket: "azul-paletilla.firebasestorage.app",
+  messagingSenderId: "731980312988",
+  appId: "1:731980312988:web:435ee7782c20fd51945859"
+};
+
+/* Whitelist (mismos correos que Azul). Ajusta el de Miguel cuando lo tengas. */
+const WHITELIST = [
+  "1985xose@gmail.com",
+  "noeliamermelada@gmail.com",
+  "kasapak666@gmail.com"
+  // ,"miguel@gmail.com"   // <-- pon aquí el de Miguel
+];
+
+const AVATARS={"Xose":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0SlAzTXYIjO3CqCT9BXJHXY7kNPPd7JF5W1jkK4Hvjqce9AHYhRS1xR8QXCRC3lSeMOd0bFsvt9z16+tbFvq13cBdkUUaYxmRsk/yFAG7SFRWd/aJj++YpR38tsEfgev51egnjuYhJC4dD3FACkYpKkphGDQANGskTI4yrgg/Q1wOs6IdMSMLLE4VgY41B3vg8Z7D616DWcbFLnU5bi4i/wBUFSI9umSffk0AcRpERuZjJP8AO8hGTnt2A+lbepmS0jxAwkUjkBipH4VTEo0qUR+SJWB2lMdD0wPf+dVtQnkklKbPLcHmN85X8KAOk0zTbCe3V3JnZ1BOWIwT7VehtIdMlX7OGWKd8OpYkbscHn6Y/KuON1c6XZXt1YvFK8JSJiRkIW+Ytj8AB9au6Vd366dNd6pdSyJvjfBXGTx8gx+HTuaAO0pGHFKORRQAUUiniloAy9V0SDUWEwZobhcYde+OmR3/AJ1y2s3csmoRxTAs6qEaKSIMFcAng8bgcZ6+ld7XOeKgFNo5UBdzlmx1IXgZ+hNAGKus3emW0EJjsZ1uiwHlp5Yz2yB/nirmoOk+nW6yBoNjrMN8h+Z8dAuCcZ+lVLiBWnSW1m2mQjkoDk/Q9D1/OrEWnTbT80bSktuuHYkgDgjHbp2oA66zuFurWKdfuyLuFTVBZyrNaRuqhARjavQY4wPyqZjxQA0HBp9R0oOKAH1XvrKG/tWguFyjdCOqn1HvU4YUtAHF3Wi6hZZEafaotxk3xjDKf93Pt2qMLcTQ/Z44LpWl+bb5R789eMH68V3FIWFAGH4bmutktvcxuqR48vK42jupPHOa2icmgnNJQB//2Q==","Miguel":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0SlAzQBk1Hd3cFjAZbiQIo6epPoB3NAEwUUtcddeK3knZYpY7SJRnkCR29O+B+uKptqckq8axIGk6l32hB7Y6n8qAO9pCorhJNSv4pPLg1FyG2qHLBuv+8M56mtvR9YuGmht7t0nEgws6DHzdgR/WgDeIxSVJ1phGDQA5RxXBeJ7x9T1JoUlSOC33KD3J/i/UY+n1rvq4mwgt01S5nliR5VdnRjyAc9QD3oAxI4kbH2ezlkA2kyRx7hnPPOOmPWrFzbCERC40ydGZyFcx44POOPTtiu+tWQ7PKwF29AOB9KlljDIwDHkcjNAHM6T4YtZbdJbuSV2YZMWdu0+5HOcVf/sGy0+aK7txIoicMyFyVx3PPp1/CsyXVvsN9c3EheS0giG4oOWJPyD2PXmk0nxTd6teMhsY1tmQhQXzk+5oA7GkYcVW05t1hDlssqhW9QRwQfp0q1QAVxur2z6Zq73OGFtOc7gOhPUf/W/wrsVPFNliSaJo5UDowwVI4NAHO6XetMzC3RJomOHj3hXQ+oz1BH8qoy67MJ57YSXMRj/v24c4/A/0rVl8K2T3AmjnuoGH/PNx/UGoW0Y2d2uoT3BmlWVArEYJUnac9uhH5ZoAytMn0aaxu47i9lf7ZgMZl8oDb02+4q3p1lFbaXPLpUKTuIiIJAwYv2IxgD05603xLon2qzR7P5WjlDkOT93o39DVi3jurCNYkWVIlLFQqjGCc9cUAafhmFrfQ7eOQESDdvz13bjmtWs/RmMtm0pLESSMw3Hn0PYdwavseKAGg4NPqOlBxQA+o7iBLmB4ZBlHGDinhhS0AZj21/EI9kkNx5Zz8wKMfxGRn8KkN3uQxy2txCcY/wBWWH4Fc1fpCwFAFHSLc2tgIyJFXcxUSHLYJ4zVwnJoJzSUAf/Z","Noelia":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0SlAzQBk1mahrKW0/2a3QSzj72W2qn1Pr7UAaoUClrmry+uoB5txfYU8iO3VRgfU5zVTTvFTSyqMvcoThx5WGT1ORwfWgDsKQqKxz4itXI8hWlz0J+XP0zyaw7jxLqDaj5LRtaIeUAAJYZ9T1oA7IjFJWdYXs2IhdOrrKdqvjayt6MK0iMGgCG8uBZ2M1wRu8tC2PXHauCkiuoI7eRVM17eP5h7k5JyB6c/oK7XXnWPRbosCcptAHqTgfriuQhujNq1kbR8EN9x+MNjBAPYHNAFxtKhkhb7c5hkk6eTIFHHfoQTUd1Ziw0oA+XMgxAGjyNuenA4IK5Oe5NW5oMXKs8EsiEbFVUJYEcEYxjt97NWZ4pxbRrhljEwXbgFmA3Enr0BP6UAc5eJDfRFEeMMIgqKOBkE57+hGPpV2yvrWe1ht9T/esMEMw+bPQDPuBWxMYA8NldW8UxmfaAV5B5wcj6dazHsNCmvZIYNUkWUKWcB1cJjr8xFAC/bmv9Wtba2yVWQDj+6pzk/QAfpXZsMisnw7ZWNvpsUtlGv7xfmkzkv8Aie2a16AK99apfWUttISqyLjI6g9QfwOK4C+tpEYlI4vNikKtNGQBJ67Qfx/GvRRyuM4rzt7NZroW1xK8MluRG6njODkEHuDQBoW+rzJbypZ3EqwgMf3wDMh6nnt9DmtAtDZzDKyzsF27gxkJ9up4/KuU1C2kimmmtiCpG1lU8emR/ntSTahFMIJbizjjlQCKbAGXGcH3BxzmgDoo7S81S6uXni8mNrd44mZwWDMAAQAewqlo9jHpFvNJceUXtoyZQi5Jz05I6frUOp6U2kW8L6W8hzKCZFJyVbufocfnWxYzfZ7U20saThiSzTNuLZJ6jHPIoA2fDzM2iWzMIxkHAj+6Bk4A9sVpVn6MwNmwUARrIwTGcY69/cmr7HigBoODVa+0yz1Bf9IhDNjAcHDAfUVYpQcUAcrN4Wu4QY7S7SWA8lZuH+m4A/yFTaf4XZblZ7+SNwvIjjBwfqT29sV0wYUtAGWdOuI0RYponSM/Kjpjj0JHX8qUhvnE+ml9xz8hVv1JBrTpCwoArafEYLNUaMRAFiEznaCSccVOTk0E5pKAP//Z","Pako":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0SlAzQBk0/pQAgUCobm7t7RN1xMkQ7bjjP0rB13XRHdtYwyvGUA8xo8biT0UH+H3P5VjW12baMi0jE97OSAW+Yn3yegoA6xNe0ySTy1u03nkKQQT+YqeC+s7mTy4Z0aT+7nBP4GuTid4Xng81Ayr5tzMFyfoPb2/xoUas1uXOmSG2PzKTtMo9GGACD9KAO0IxSVU0W5kvNIt5pwfMYENkYJIJGSO3SrhGDQA5RxUdzL5FrLNjPloWx64GalrH1rVRZ3NtbbdwmDNJhckKB09OTx+dAHHXFxHNG5wXnlbPyDJLcZIHfk/lT7ZbpV8tYkV36kIQQPoOD/KokZ7aGJbZjHdSzeWXXqoG3AB7dSat381nGAUuZWZF+Y9cjuT2AJ6dTQBEAbeSeJTuwmZWJzyeeT+Q/Guui1yyj06O6upkt43XK72GTjrgdTXDxNc3UbRwrbxxsTsHnIoLHgMTnLEVd1nw0Wv4LiOWMWxjRMKrPtIGOAOo6n86AOx066hnurj7PIkkThZfkOdpI5B9M4B/OtBhxXNaM4g199NtsCG1twHOMF24/lnP/AjXTUAFc34n8lbu0dZfIuQrfvCMqE75HfnpXRqeK8/1b7Zqt3Mk0UkjwsyCFMhgOOmAeOnJoApyRKZvOinBUEytKx4dh0x+PFV7adnLRxAfaYzvVWXO/wBR6GrN1MY9PtrZIvJ2EicBcPu7A5/zikt4YDGIkWQ3MatvZhjnGAB7Drn2oAk8N2drqMNyZ41Elu6tHuHYj5uPwz+NUtG82xuGmnS63wM6JGqkqCeOcnGBn+Vdf4c02N4JL2JjG7yNhgOHGBnI785qxeve2I+fTUvYAv3oB834g8jgds0AU9De6uNWSUnamxt4kmLybeMZAGBz/KurrlvDFytzql20ShVKDdGo4h9FyecnkmuoY8UANBwapR2DQarNdwOmy5C+arLzleAQfp2q5Sg4oAw/FOlWlxp8908JM6KPnQkEjPfHXAzUWmeHlkso2u7ueaOVQxiDYXB6Anqa6LIYYPQ9jUVtZ29qMQRhB2AJwO+AOw+lAEkUaQxLHEoREGFVRgAU+ikLCgBBGiuZAihzwWxyfxpCcmgnNJQB/9k="};
+
+/* Jugadores fijos de la peña (colores y fotos iguales que Azul). */
+const PLAYERS = [
+  { id:"xose",   name:"Xose",   color:"#1e7a3c", initial:"X" },
+  { id:"noelia", name:"Noelia", color:"#a02020", initial:"N" },
+  { id:"pako",   name:"Pako",   color:"#1a3a8a", initial:"P" },
+  { id:"miguel", name:"Miguel", color:"#5a1a8a", initial:"M" }
+];
+const P = Object.fromEntries(PLAYERS.map(p=>[p.id,p]));
+
+/* ===================== MOTOR DE CIERRES (X01) ===================== */
+// Construye todas las "dianas" posibles de un dardo, con etiqueta y si es doble.
+const THROWS = (()=>{
+  const a=[];
+  for(let n=1;n<=20;n++){ a.push({lbl:String(n),val:n,dbl:false,bull:false,pref:n}); }      // simples
+  for(let n=1;n<=20;n++){ a.push({lbl:"T"+n,val:n*3,dbl:false,bull:false,pref:n*3+1}); }      // triples
+  for(let n=1;n<=20;n++){ a.push({lbl:"D"+n,val:n*2,dbl:true ,bull:false,pref:n*2}); }         // dobles
+  a.push({lbl:"25",  val:25, dbl:false, bull:true,  pref:25}); // diana exterior
+  a.push({lbl:"Bull",val:50, dbl:true , bull:true,  pref:51}); // diana interior (cuenta como doble)
+  return a;
+})();
+const CLOSERS_DBL   = THROWS.filter(t=>t.dbl);                       // estricto: solo dobles + bull(50)
+const CLOSERS_HOUSE = THROWS.filter(t=>t.dbl || t.lbl[0]==='T');     // casa: dobles + triples + bull. NUNCA simples
+
+// "Comodidad" de un doble para terminar: D20,D16,D8... y Bull son los preferidos.
+function doubleScore(t){
+  if(t.lbl==="Bull") return 90;
+  if(t.lbl[0]==="T") return 65;   // los triples también cierran (regla de la peña)
+  const friendly={40:100,32:95,16:90,8:85,24:80,12:78,4:76,20:74,36:60,28:58,2:50};
+  return friendly[t.val] || (50 - t.val); // dobles raros, menos preferidos
+}
+function routeScore(route){
+  // menos dardos ya está garantizado por nivel; aquí priorizamos calidad
+  let s=0;
+  for(let i=0;i<route.length-1;i++) s += route[i].pref;      // primeros dardos altos
+  s += doubleScore(route[route.length-1]);                   // buen doble final
+  return s;
+}
+function fmtRoute(route){ return route.map(t=>t.lbl).join(" "); }
+
+// Devuelve hasta `max` rutas de cierre para `score`, de longitud mínima posible.
+function checkouts(score, doubleOut, max=3){
+  if(score<=0 || score>180) return [];   // máximo real con triple de cierre = 180 (T20 T20 T20)
+  if(score===1) return [];               // 1 nunca cierra
+  const closers = doubleOut ? CLOSERS_DBL : CLOSERS_HOUSE;
+
+  // nivel 1: un dardo
+  let lvl1 = closers.filter(c=>c.val===score).map(c=>[c]);
+  if(lvl1.length) return rank(lvl1,max);
+
+  // nivel 2: dos dardos
+  let lvl2=[];
+  for(const c of closers){
+    const rem = score - c.val;
+    if(rem<=0) continue;
+    for(const d of THROWS){ if(d.val===rem) lvl2.push([d,c]); }
+  }
+  if(lvl2.length) return rank(lvl2,max);
+
+  // nivel 3: tres dardos
+  let lvl3=[];
+  for(const c of closers){
+    const rem = score - c.val;
+    if(rem<=0) continue;
+    for(const d1 of THROWS){
+      const r2 = rem - d1.val;
+      if(r2<=0) continue;
+      for(const d2 of THROWS){ if(d2.val===r2){ lvl3.push([d1,d2,c]); } }
+    }
+  }
+  return rank(lvl3,max);
+}
+function rank(routes,max){
+  const seen=new Set(); const uniq=[];
+  routes.sort((a,b)=>routeScore(b)-routeScore(a));
+  for(const r of routes){ const k=r.map(t=>t.lbl).slice().sort().join('|'); if(!seen.has(k)){seen.add(k);uniq.push(r);} if(uniq.length>=max) break; }
+  return uniq;
+}
+
+/* ===================== ESTADO ===================== */
+let db=null, currentUser=null, appReady=false;
+let selected=[];        // ids de jugadores en la partida
+let mode=301;
+let game=null;          // {mode, players:[{id,score,darts}], turn, curDarts:[{lbl,val,isD,isT}], turnStart, startedAt, finished, winner}
+let undoStack=[];       // snapshots para deshacer
+
+/* ===================== FIREBASE / AUTH ===================== */
+function initFirebase(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    firebase.auth().onAuthStateChanged(handleAuth);
+  }catch(e){
+    document.getElementById('loginErr').innerHTML =
+      "⚠️ Falta pegar el firebaseConfig (mira el comentario en el código).";
+  }
+}
+function handleAuth(user){
+  if(user && WHITELIST.includes((user.email||"").toLowerCase())){
+    currentUser=user;
+    document.getElementById('whoBox').innerHTML =
+      `<b>${user.displayName||user.email}</b><a href="#" id="logoutLink">Salir</a>`;
+    document.getElementById('logoutLink').onclick=(e)=>{e.preventDefault();firebase.auth().signOut();};
+    if(!appReady){ appReady=true; show('newGameScreen'); listenGame(); }
+  }else if(user){
+    appReady=false;
+    firebase.auth().signOut();
+    document.getElementById('loginErr').textContent="Ese correo no está en la lista de la peña.";
+    show('loginScreen');
+  }else{
+    appReady=false; currentUser=null;
+    document.getElementById('whoBox').innerHTML="";
+    show('loginScreen');
+  }
+}
+document.getElementById('googleBtn').onclick=()=>{
+  const prov=new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(prov).catch(e=>{
+    document.getElementById('loginErr').textContent="No se pudo iniciar sesión: "+e.message;
+  });
+};
+
+/* Partida activa sincronizada en /dardos/partidaActual */
+function listenGame(){
+  if(!db) return;
+  db.ref('dardos/partidaActual').on('value', snap=>{
+    const g=normGame(snap.val());
+    if(g && !g.finished){
+      // no machacar una partida local recién empezada con datos viejos del servidor
+      if(game && (game.startedAt||0) > (g.startedAt||0)) return;
+      game=g; renderGame();
+      if(getActiveScreen()!=='gameScreen' && getActiveScreen()!=='winScreen') show('gameScreen');
+    }
+  });
+}
+function normGame(g){
+  if(!g) return g;
+  if(Array.isArray(g.players)){
+    g.players.forEach(p=>{ if(typeof p.darts!=='number') p.darts=0; if(typeof p.score!=='number') p.score=g.mode; });
+  }
+  if(!Array.isArray(g.curDarts)) g.curDarts = g.curDarts ? Object.values(g.curDarts) : [];
+  if(typeof g.turn!=='number') g.turn=0;
+  if(typeof g.turnStart!=='number') g.turnStart = (g.players && g.players[g.turn]) ? g.players[g.turn].score : g.mode;
+  return g;
+}
+function saveGame(){ try{ if(db && game) db.ref('dardos/partidaActual').set(game).catch(()=>{}); }catch(e){} }
+
+/* ===================== UI helpers ===================== */
+const screens=['loginScreen','newGameScreen','gameScreen','winScreen','historyScreen'];
+function show(id){ screens.forEach(s=>document.getElementById(s).classList.toggle('hidden', s!==id)); }
+function getActiveScreen(){ return screens.find(s=>!document.getElementById(s).classList.contains('hidden')); }
+function toast(msg,good=false){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.className='toast show'+(good?' good':''); setTimeout(()=>t.className='toast',1800);
+}
+function avatarHTML(p,cls){
+  const src = (typeof AVATARS!=='undefined') ? AVATARS[p.name] : null;
+  if(src) return `<img class="${cls}" src="${src}" style="object-fit:cover" alt="${p.name}">`;
+  return `<div class="${cls}" style="background:${p.color}">${p.initial}</div>`;
+}
+
+/* ===================== NUEVA PARTIDA ===================== */
+function renderPlayerSelect(){
+  const grid=document.getElementById('playersGrid'); grid.innerHTML="";
+  PLAYERS.forEach(p=>{
+    const sel=selected.includes(p.id);
+    const el=document.createElement('div');
+    el.className='pchip'+(sel?' sel':'');
+    el.innerHTML=avatarHTML(p,'avatar')+`<span class="pname">${p.name}</span><span class="check">✔</span>`;
+    el.onclick=()=>{
+      if(selected.includes(p.id)) selected=selected.filter(x=>x!==p.id);
+      else selected.push(p.id);
+      renderPlayerSelect();
+    };
+    grid.appendChild(el);
+  });
+}
+document.querySelectorAll('#modeSeg button').forEach(b=>{
+  b.onclick=()=>{ mode=+b.dataset.mode; document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b)); };
+});
+
+document.getElementById('startBtn').onclick=()=>{
+  if(selected.length<2){ toast("Elige al menos 2 jugadores"); return; }
+  game=newGameObj(selected);
+  undoStack=[];
+  show('gameScreen'); renderGame(); saveGame();
+};
+document.getElementById('goHistoryBtn').onclick=()=>{ show('historyScreen'); renderStats(); };
+
+/* ===================== JUEGO (dardo a dardo) ===================== */
+function activePlayer(){ return game.players[game.turn]; }
+function turnSum(){ return (game.curDarts||[]).reduce((a,d)=>a+d.val,0); }
+
+function snapshot(){
+  undoStack.push(JSON.stringify({players:game.players, turn:game.turn, curDarts:game.curDarts, turnStart:game.turnStart, finished:game.finished, winner:game.winner}));
+  if(undoStack.length>80) undoStack.shift();
+}
+function throwDart(dart){
+  if(!game || game.finished) return;
+  const ap=activePlayer();
+  snapshot();
+  const rem = ap.score - dart.val;
+  game.curDarts = game.curDarts||[];
+  game.curDarts.push(dart);
+  ap.darts = (ap.darts||0) + 1;
+  // PIFIA: pasarse, quedar en 1, o tocar 0 sin doble/triple
+  if(rem<0 || rem===1 || (rem===0 && !(dart.isD||dart.isT))){
+    const reason = rem<0 ? 'te pasaste' : (rem===1 ? 'te quedas en 1' : 'hay que cerrar con doble o triple');
+    ap.score = game.turnStart;
+    toast('¡Pifia! '+P[ap.id].name+': '+reason);
+    endTurn(true);
+    return;
+  }
+  ap.score = rem;
+  if(rem===0){ // cierre válido con doble o triple -> gana
+    game.finished=true; game.winner=ap.id; game.endedAt=Date.now();
+    saveGame(); finishGame(ap, game.turnStart);
+    return;
+  }
+  if(game.curDarts.length>=3){ endTurn(false); return; }
+  saveGame(); renderGame();
+}
+function endTurn(busted){
+  const ap=activePlayer();
+  ap.lastTurn = { darts:(game.curDarts||[]).map(d=>d.lbl), sum:turnSum(), bust:!!busted };
+  game.turn=(game.turn+1)%game.players.length;
+  game.curDarts=[];
+  game.turnStart=activePlayer().score;
+  saveGame(); renderGame();
+}
+function passTurn(){ if(!game||game.finished) return; snapshot(); endTurn(false); }
+function undoDart(){
+  if(!undoStack.length){ toast('Nada que deshacer'); return; }
+  const s=JSON.parse(undoStack.pop());
+  game.players=s.players; game.turn=s.turn; game.curDarts=s.curDarts||[]; game.turnStart=s.turnStart;
+  game.finished=!!s.finished; game.winner=s.winner||null;
+  saveGame(); show('gameScreen'); renderGame();
+}
+
+/* --- diana SVG interactiva --- */
+const BOARD_ORDER=[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
+let boardBuilt=false;
+function buildBoard(){
+  const C=210, rBE=15, rBull=27, rInS=108, rTrip=121, rOutS=168, rDbl=182;
+  const pt=(r,a)=>{const t=a*Math.PI/180;return [(C+r*Math.cos(t)).toFixed(2),(C+r*Math.sin(t)).toFixed(2)];};
+  const wedge=(r1,r2,a1,a2)=>{const p1=pt(r1,a1),p2=pt(r2,a1),p3=pt(r2,a2),p4=pt(r1,a2);
+    return `M${p1[0]} ${p1[1]} L${p2[0]} ${p2[1]} A${r2} ${r2} 0 0 1 ${p3[0]} ${p3[1]} L${p4[0]} ${p4[1]} A${r1} ${r1} 0 0 0 ${p1[0]} ${p1[1]} Z`;};
+  const BLACK='#26261f', CREAM='#efe2bb', RED='#d23b2e', GREEN='#2f9e57';
+  let s='<svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">';
+  s+='<circle cx="210" cy="210" r="208" fill="#0a0a0a" stroke="#d9c79a" stroke-width="4"/>';
+  BOARD_ORDER.forEach((num,i)=>{
+    const a0=-90+i*18-9, a1=-90+i*18+9;
+    const single=(i%2===0)?BLACK:CREAM, ring=(i%2===0)?RED:GREEN;
+    s+=`<path class="seg" d="${wedge(rBull,rInS,a0,a1)}" fill="${single}" data-l="${num}" data-v="${num}" data-m="1"/>`;
+    s+=`<path class="seg" d="${wedge(rInS,rTrip,a0,a1)}" fill="${ring}" data-l="T${num}" data-v="${num*3}" data-m="3"/>`;
+    s+=`<path class="seg" d="${wedge(rTrip,rOutS,a0,a1)}" fill="${single}" data-l="${num}" data-v="${num}" data-m="1"/>`;
+    s+=`<path class="seg" d="${wedge(rOutS,rDbl,a0,a1)}" fill="${ring}" data-l="D${num}" data-v="${num*2}" data-m="2"/>`;
+  });
+  s+=`<circle class="seg" cx="210" cy="210" r="${rBull}" fill="${GREEN}" data-l="25" data-v="25" data-m="1"/>`;
+  s+=`<circle class="seg" cx="210" cy="210" r="${rBE}" fill="${RED}" data-l="Bull" data-v="50" data-m="2"/>`;
+  BOARD_ORDER.forEach((num,i)=>{ const a=-90+i*18, p=pt(196,a);
+    s+=`<text x="${p[0]}" y="${p[1]}" text-anchor="middle" dominant-baseline="central" font-family="Anton, 'Bebas Neue', sans-serif" font-size="22" font-weight="700" fill="#f4ecd8" paint-order="stroke" stroke="#0a0a0a" stroke-width="0.8">${num}</text>`; });
+  s+='</svg>';
+  const host=document.getElementById('board'); host.innerHTML=s;
+  host.onclick=(e)=>{ const t=e.target.closest('[data-l]'); if(!t) return;
+    throwDart({lbl:t.dataset.l, val:+t.dataset.v, isD:t.dataset.m==='2', isT:t.dataset.m==='3'}); };
+  boardBuilt=true;
+}
+
+function renderGame(){
+  if(!boardBuilt) buildBoard();
+  const ap=activePlayer(), pA=P[ap.id];
+  document.getElementById('activeCard').innerHTML =
+    avatarHTML(pA,'avatar')+
+    `<div class="ac-info"><div class="ac-name">${pA.name}</div><div class="ac-sub">Dardo ${(game.curDarts||[]).length+1} de 3</div></div>`+
+    `<div class="ac-score">${ap.score}</div>`;
+  const dr=document.getElementById('dartsRow'); let slots='';
+  for(let i=0;i<3;i++){ const d=(game.curDarts||[])[i]; slots+=`<div class="slot${d?' filled':''}">${d?d.lbl:''}</div>`; }
+  dr.innerHTML = slots + `<div class="slot-sum">${turnSum()}</div>`;
+  const routes=checkouts(ap.score, false, 2);
+  const cl=document.getElementById('checkoutLine');
+  if(routes.length){
+    cl.innerHTML = `<span class="co-lbl">Cierre</span>` + routes.map(r=>`<span class="co-route">${r.map(t=>t.lbl).join(' → ')}</span>`).join('<span class="co-or">o</span>');
+  } else {
+    cl.innerHTML = `<span class="co-lbl">${ap.score>180?'Aún muy alto':'Sin cierre directo'}</span>`;
+  }
+  const others=document.getElementById('others'); others.innerHTML='';
+  game.players.forEach((pl,i)=>{ if(i===game.turn) return; const p=P[pl.id];
+    const lt=pl.lastTurn;
+    let last='<span class="opl-none">aún no ha tirado</span>';
+    if(lt && lt.darts){
+      const ds = Array.isArray(lt.darts)?lt.darts:Object.values(lt.darts);
+      if(ds.length){
+        const chips = ds.map(x=>`<b>${x}</b>`).join('<i>·</i>');
+        last = lt.bust ? `${chips} <span class="opl-bust">PIFIA</span>` : `${chips} <span class="opl-eq">= ${lt.sum}</span>`;
+      }
+    }
+    const el=document.createElement('div'); el.className='opl';
+    el.innerHTML=avatarHTML(p,'avatar-sm')+
+      `<div class="opl-info"><div class="opl-name">${p.name}</div><div class="opl-last">${last}</div></div>`+
+      `<div class="opl-score">${pl.score}</div>`;
+    others.appendChild(el);
+  });
+  document.getElementById('undoBtn').style.opacity = undoStack.length?'1':'.4';
+}
+
+document.getElementById('missBtn').onclick=()=>throwDart({lbl:'–',val:0,isD:false,isT:false});
+document.getElementById('passBtn').onclick=()=>passTurn();
+document.getElementById('undoBtn').onclick=()=>undoDart();
+document.getElementById('quitBtn').onclick=()=>{
+  if(confirm('¿Abandonar la partida actual?')){
+    if(db) db.ref('dardos/partidaActual').remove();
+    game=null; undoStack=[]; show('newGameScreen'); renderPlayerSelect();
+  }
+};
+
+/* ===================== FIN DE PARTIDA + STATS ===================== */
+function newGameObj(ids){
+  return { mode, players:ids.map(id=>({id,score:mode,darts:0})), turn:0, curDarts:[], turnStart:mode, startedAt:Date.now(), finished:false, winner:null };
+}
+function finishGame(winnerPlayer, closingPts){
+  const w=P[winnerPlayer.id];
+  document.getElementById('winName').textContent=w.name;
+  const avg = winnerPlayer.darts? Math.round((game.mode-winnerPlayer.score)/winnerPlayer.darts*3) : 0;
+  document.getElementById('winStat').textContent = `${game.mode} · cierre de ${closingPts} · media ${avg} (3 dardos)`;
+  show('winScreen');
+  if(db){
+    const rec={ mode:game.mode, winner:winnerPlayer.id, players:game.players.map(p=>p.id), closing:closingPts, startedAt:game.startedAt, endedAt:Date.now() };
+    db.ref('dardos/historico').push(rec);
+    game.players.forEach(pl=>{
+      db.ref('dardos/stats/'+pl.id).transaction(s=>{
+        s=s||{played:0,won:0,bestCheckout:0,sumPoints:0,sumDarts:0};
+        s.played+=1; s.sumPoints+=(game.mode-pl.score); s.sumDarts+=(pl.darts||0);
+        if(pl.id===winnerPlayer.id){ s.won+=1; if(closingPts>(s.bestCheckout||0)) s.bestCheckout=closingPts; }
+        return s;
+      });
+    });
+    db.ref('dardos/partidaActual').remove();
+  }
+}
+document.getElementById('rematchBtn').onclick=()=>{
+  const ids=game?game.players.map(p=>p.id):selected;
+  selected=ids.slice(); game=newGameObj(ids); undoStack=[]; saveGame(); show('gameScreen'); renderGame();
+};
+document.getElementById('newFromWinBtn').onclick=()=>{ show('newGameScreen'); renderPlayerSelect(); };
+
+/* ===================== HISTÓRICO / STATS ===================== */
+document.getElementById('tabStats').onclick=()=>{ switchTab('stats'); };
+document.getElementById('tabHist').onclick=()=>{ switchTab('hist'); };
+function switchTab(t){
+  document.getElementById('tabStats').classList.toggle('on',t==='stats');
+  document.getElementById('tabHist').classList.toggle('on',t==='hist');
+  document.getElementById('statsCard').classList.toggle('hidden',t!=='stats');
+  document.getElementById('histCard').classList.toggle('hidden',t!=='hist');
+  if(t==='stats') renderStats(); else renderHistory();
+}
+function renderStats(){
+  const body=document.getElementById('statsBody'); body.innerHTML="";
+  if(!db){ body.innerHTML='<tr><td colspan="5" class="empty">Sin conexión</td></tr>'; return; }
+  db.ref('dardos/stats').once('value',snap=>{
+    const s=snap.val()||{};
+    const rows=PLAYERS.map(p=>({p, st:s[p.id]||{played:0,won:0,bestCheckout:0,sumPoints:0,sumDarts:0}}))
+                      .filter(r=>r.st.played>0)
+                      .sort((a,b)=> b.st.won-a.st.won || b.st.bestCheckout-a.st.bestCheckout);
+    if(!rows.length){ body.innerHTML='<tr><td colspan="5" class="empty">Aún no hay partidas jugadas 🎯</td></tr>'; return; }
+    rows.forEach(({p,st})=>{
+      const avg = st.sumDarts? Math.round(st.sumPoints/st.sumDarts*3):0;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td><span class="miniav" style="background:${p.color}">${p.initial}</span>${p.name}</td>
+        <td>${st.played}</td><td>${st.won}</td><td>${st.bestCheckout||'—'}</td><td>${avg}</td>`;
+      body.appendChild(tr);
+    });
+  });
+}
+function deleteHistItem(key){
+  if(!db) return;
+  if(!confirm('¿Borrar esta partida del histórico?')) return;
+  db.ref('dardos/historico/'+key).remove().then(()=>{ toast('Partida borrada', true); renderHistory(); }).catch(()=>toast('No se pudo borrar'));
+}
+function wipeAll(){
+  if(!db) return;
+  if(!confirm('¿Borrar TODO el histórico y reiniciar las estadísticas? No se puede deshacer.')) return;
+  Promise.all([ db.ref('dardos/historico').remove(), db.ref('dardos/stats').remove() ])
+    .then(()=>{ toast('Histórico y stats borrados', true); renderHistory(); renderStats(); })
+    .catch(()=>toast('No se pudo borrar'));
+}
+function renderHistory(){
+  const list=document.getElementById('histList'); list.innerHTML="";
+  if(!db){ list.innerHTML='<div class="empty">Sin conexión</div>'; return; }
+  db.ref('dardos/historico').limitToLast(50).once('value',snap=>{
+    const v=snap.val();
+    if(!v){ list.innerHTML='<div class="empty">Sin partidas todavía 🎯</div>'; return; }
+    const arr=Object.entries(v).sort((a,b)=>(b[1].endedAt||0)-(a[1].endedAt||0));
+    arr.forEach(([key,r])=>{
+      const w=P[r.winner]; const d=new Date(r.endedAt||0);
+      const others=(r.players||[]).filter(id=>id!==r.winner).map(id=>P[id]?P[id].name:id).join(", ");
+      const el=document.createElement('div'); el.className='hist-item';
+      el.innerHTML=`<span class="mode-tag">${r.mode}</span>
+        <span class="hi-main"><span class="win">👑 ${w?w.name:r.winner}</span> vs ${others}${r.closing?` · cierre ${r.closing}`:''}</span>
+        <span class="date">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</span>
+        <button class="hi-del" title="Borrar">🗑</button>`;
+      el.querySelector('.hi-del').onclick=()=>deleteHistItem(key);
+      list.appendChild(el);
+    });
+    const wipe=document.createElement('button');
+    wipe.className='btn btn-ghost'; wipe.style.cssText='margin-top:14px;color:var(--red-glow);border-color:var(--red)';
+    wipe.textContent='Borrar todo el histórico y stats';
+    wipe.onclick=wipeAll;
+    list.appendChild(wipe);
+  });
+}
+document.getElementById('backFromHistory').onclick=()=>{ show(game&&!game.finished?'gameScreen':'newGameScreen'); if(!game)renderPlayerSelect(); };
+
+/* ===================== ARRANQUE ===================== */
+renderPlayerSelect();
+initFirebase();
+</script>
+</body>
+</html>
